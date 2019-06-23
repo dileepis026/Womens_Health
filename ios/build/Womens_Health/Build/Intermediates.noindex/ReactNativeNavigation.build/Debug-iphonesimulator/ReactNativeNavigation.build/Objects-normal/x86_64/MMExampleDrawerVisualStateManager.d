@@ -1,0 +1,5 @@
+dependencies: \
+  /Users/dileepku/Desktop/Womens_Health/node_modules/react-native-navigation/lib/ios/RNNSideMenu/MMDrawerController/MMExampleDrawerVisualStateManager.m \
+  /Users/dileepku/Desktop/Womens_Health/node_modules/react-native-navigation/lib/ios/RNNSideMenu/MMDrawerController/MMExampleDrawerVisualStateManager.h \
+  /Users/dileepku/Desktop/Womens_Health/node_modules/react-native-navigation/lib/ios/RNNSideMenu/MMDrawerController/MMDrawerVisualState.h \
+  /Users/dileepku/Desktop/Womens_Health/node_modules/react-native-navigation/lib/ios/RNNSideMenu/MMDrawerController/MMDrawerController.h
