@@ -1,5 +1,5 @@
 import React from 'react';
-import {icons} from '../utils';
+import {icons} from '../../utils';
 
 export const bottomTabs = {
   id: 'HomeBottomTabsId',
@@ -17,7 +17,7 @@ export const bottomTabs = {
         options: {
           bottomTab : {
             text: 'Home',
-            icon: icons.calendar,
+            icon: icons.home,
             testID: 'FIRST_TAB_BAR_BUTTON',
             iconColor: '#000000',
             selectedIconColor: 'white',
@@ -31,28 +31,51 @@ export const bottomTabs = {
       stack: {
         children: [{
           component: {
-            name: 'Track',
+            name: 'History',
             passProps: {
-              text: 'This is Search Screen',
+              text: 'This is history tab',
             }
            }
          }],
          options: {
            bottomTab: {
-             text: 'Track',
-             icon: icons.search,
+             text: 'History',
+             icon: icons.history,
              testID: 'SECOND_TAB_BAR_BUTTON',
              iconColor: '#000000',
              selectedIconColor: 'white',
              textColor: '#000000',
              selectedTextColor: 'white'
+           },
+        },
+     },
+   },
+   {
+     stack: {
+       children: [{
+         component: {
+           name: 'Search',
+           passProps: {
+             text: 'This is search tab',
            }
-        }
-     }
-   }],
+          }
+        }],
+        options: {
+          bottomTab: {
+            text: 'Search',
+            icon: icons.search,
+            testID: 'THIRD_TAB_BAR_BUTTON',
+            iconColor: '#000000',
+            selectedIconColor: 'white',
+            textColor: '#000000',
+            selectedTextColor: 'white'
+          }
+       }
+    }
+  }],
    options: {
      bottomTabs: {
-       backgroundColor: '#5f9ea0'
+
      },
    }
  };

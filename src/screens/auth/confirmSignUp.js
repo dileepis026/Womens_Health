@@ -8,6 +8,8 @@ import {
 import {Navigation} from 'react-native-navigation';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { Container,Item, Input, Button, Icon} from 'native-base';
+import Snackbar from 'react-native-snackbar';
+import { Auth } from 'aws-amplify';
 
 
 
@@ -41,15 +43,19 @@ constructor(props) {
    })
  }
 
- confirmationCode = (Navigation,componentId) => {
+ async confirmationCode(Navigation,componentId) {
 
-  Navigation.push(componentId, {
-        component: {
-        name: 'Login',
-        passProps: {Navigation,componentId}
+   const email = "dileepis026@gmail.com";
+   const authCode = "823278";
+    await Auth.confirmSignUp(email, authCode)
+    .then(() => {
+      console.log('Confirm sign up successful');
+    })
+    .catch(err => {
+      console.log(err);
+    })
 
-            }
-        });
+
  }
 
  render() {

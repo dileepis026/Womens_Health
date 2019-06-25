@@ -14,6 +14,8 @@ import {Navigation} from 'react-native-navigation';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import DatePicker from 'react-native-datepicker';
 import { Container, Content, Item, Input, Button, View, Text} from 'native-base';
+import Snackbar from 'react-native-snackbar';
+import { Auth } from 'aws-amplify';
 
 
 // Default render of country flag
@@ -47,16 +49,15 @@ export default class Registration extends Component {
 constructor(props) {
   super(props);
   this.state = {
-    Username:'',
+    name:'',
     email: '',
     password: '',
-    bithday: '',
-    location: '',
+    birthdate: '',
+    locale: '',
     phoneNumber: '',
     flag: defaultFlag,
     modalVisible: false,
-    authCode: '',
-    date: ''
+    authCode: ''
     }
   }
 
@@ -99,10 +100,29 @@ constructor(props) {
       console.log(err)
     }
   }
+// Sign up user with AWS Amplify Auth
+  async signUp(Navigation,componentId) {
 
-  confirmPassword = (Navigation,componentId) => {
+ const {
+  name,
+  email,
+  password,
+  birthdate,
+  locale,
+  phoneNumber
+} = this.state;
 
-  Navigation.push(componentId, {
+// rename variable to conform with Amplify Auth field phone attribute
+    const phone_number = phoneNumber
+
+  await Auth.signUp({
+    username: email,
+    password,
+    attributes: {name, phone_number, birthdate, locale }
+  })
+  .then((user) => {
+     console.log(user)
+     Navigation.push(componentId, {
         component: {
         name: 'ConfirmSignUp',
         passProps: {Navigation,componentId},
@@ -118,6 +138,21 @@ constructor(props) {
         }
       }
         });
+
+   })
+   .catch((err) => {
+     console.log(err)
+     Snackbar.show({
+ title: err["message"],
+ duration: Snackbar.LENGTH_INDEFINITE,
+ backgroundColor:'#ff1493',
+ action: {
+  title: 'UNDO',
+  color: 'black',
+  onPress: () => { /* Do something. */ },
+ },
+ });
+})
 }
 
  render() {
@@ -146,7 +181,7 @@ constructor(props) {
                     autoCapitalize='none'
                     autoCorrect={false}
                     onSubmitEditing={(event) => {this.refs.SecondInput._root.focus()}}
-                    onChangeText={value => this.onChangeText('Username', value)}
+                    onChangeText={value => this.onChangeText('name', value)}
             />
           </Item>
 
@@ -200,7 +235,7 @@ constructor(props) {
                onSubmitEditing={(event) => {this.refs.FifthInput._root.focus()}}
               />
           <DatePicker
-           date={this.state.date}
+           date={this.state.birthdate}
            style={{width: 300}}
            mode="date"
            format="YYYY-MM-DD"
@@ -216,7 +251,7 @@ constructor(props) {
              borderWidth: 1.5,
              }
           }}
-           onDateChange={(date) => {this.setState({date: date})}}
+           onDateChange={(date) => this.onChangeText('birthdate', date)}
          />
             </Item>
 
@@ -233,7 +268,7 @@ constructor(props) {
                autoCorrect={false}
                ref='FifthInput'
                onSubmitEditing={(event) => {this.refs.SixthInput._root.focus()}}
-              onChangeText={value => this.onChangeText('location', value)}/>
+              onChangeText={value => this.onChangeText('locale', value)}/>
             </Item>
 
               {/* phone section  */}
@@ -314,7 +349,7 @@ constructor(props) {
                     </Modal>
                   </Item>
                   {/* End of phone input */}
-     <Button block style={{marginTop:20,marginHorizontal:10, backgroundColor:'#ff1493'}} onPress={() => this.confirmPassword(Navigation,componentId)}>
+     <Button block style={{marginTop:20,marginHorizontal:10, backgroundColor:'#ff1493'}} onPress={() => this.signUp(Navigation,componentId)}>
           <Text style={styles.textStyle}>Sign Up</Text>
           </Button>
                </View>

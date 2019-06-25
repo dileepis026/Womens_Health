@@ -10,8 +10,11 @@ import {
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {Navigation} from 'react-native-navigation';
 import { Container, Item, Input, Button} from 'native-base';
-import sideMenu from '../../layouts/sideMenu';
+import sideMenu from '../layouts/sideMenu';
 import {images} from '../../utils';
+import Snackbar from 'react-native-snackbar';
+import { goToAuth, goHome } from '../navigator';
+import { Auth } from 'aws-amplify';
 
 
 export default class Login extends Component {
@@ -43,12 +46,34 @@ export default class Login extends Component {
     })
   }
 
-   getStarted = (Navigation,componentId) => {
-     Navigation.setRoot({
-      root: {
-        sideMenu,
-      },
-   });
+
+
+
+
+
+  // Sign in users with Auth
+ async getStarted(Navigation,componentId) {
+
+  const { email, password } = this.state
+    await Auth.signIn(email,password)
+    .then((user) => {
+      console.log(user);
+      goHome();
+})
+ .catch((err) => {
+   console.log(err)
+   Snackbar.show({
+title: err["message"],
+duration: Snackbar.LENGTH_INDEFINITE,
+backgroundColor:'#ff1493',
+action: {
+ title: 'UNDO',
+ color: 'black',
+ onPress: () => { /* Do something. */ },
+},
+});
+   })
+
 }
 
 

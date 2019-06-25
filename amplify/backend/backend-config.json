@@ -1,0 +1,8 @@
+{
+	"auth": {
+		"womenshealthe92f005d": {
+			"service": "Cognito",
+			"providerPlugin": "awscloudformation"
+		}
+	}
+}

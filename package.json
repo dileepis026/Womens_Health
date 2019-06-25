@@ -7,14 +7,23 @@
     "test": "jest"
   },
   "dependencies": {
+    "aws-amplify": "^1.1.29",
+    "aws-amplify-react-native": "^2.1.13",
     "native-base": "^2.12.1",
     "react": "16.8.3",
     "react-native": "0.59.8",
     "react-native-datepicker": "^1.7.2",
+    "react-native-easy-grid": "^0.2.1",
     "react-native-elements": "^1.1.0",
     "react-native-keyboard-manager": "^4.0.13-12",
+    "react-native-linear-gradient": "^2.5.4",
     "react-native-navigation": "^2.21.0",
-    "react-native-vector-icons": "^6.4.2"
+    "react-native-paper": "^2.16.0",
+    "react-native-snackbar": "^1.0.0",
+    "react-native-vector-icons": "^6.4.2",
+    "react-redux": "^7.1.0",
+    "redux": "^4.0.1",
+    "redux-thunk": "^2.3.0"
   },
   "devDependencies": {
     "@babel/core": "^7.4.5",

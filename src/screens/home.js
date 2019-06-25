@@ -10,24 +10,25 @@ import { Container, Header, Content, Card, CardItem, Thumbnail, Text, Button, Ic
 export default class Home extends Component {
 
 
-  static options(passProps) {
+  static  get options() {
      return {
        topBar: {
-         leftButtons:[{
-           id:'menu',
-           icon: icons.menu,
-           color:'white'
-
-         }],
          title: {
            text: 'Home',
-           color: 'white'
          },
-         background: {
-           color: '#5f9ea0'
-        },
-      },
-   }
+         drawBehind: false,
+         visible: true,
+         animate: false,
+         hideOnScroll: true,
+         leftButtons:[{
+           id:'menuBtn',
+           icon: icons.menu,
+           color:'white',
+           buttonFontSize: 15,
+           buttonFontWeight: '600',
+          }],
+       },
+   };
 }
 
 
@@ -49,7 +50,7 @@ componentDidMount() {
     }
 
  navigationButtonPressed({ buttonId }) {
-   if (buttonId === "menu"){
+   if (buttonId === "menuBtn"){
      if(this.state.selected === false) {
     Navigation.mergeOptions(this.props.componentId, {
      sideMenu: {

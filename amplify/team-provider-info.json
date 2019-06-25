@@ -1,0 +1,19 @@
+{
+    "dev": {
+        "awscloudformation": {
+            "AuthRoleName": "womenshealth-dev-20190623180307-authRole",
+            "UnauthRoleArn": "arn:aws:iam::716852846847:role/womenshealth-dev-20190623180307-unauthRole",
+            "AuthRoleArn": "arn:aws:iam::716852846847:role/womenshealth-dev-20190623180307-authRole",
+            "Region": "us-east-1",
+            "DeploymentBucketName": "womenshealth-dev-20190623180307-deployment",
+            "UnauthRoleName": "womenshealth-dev-20190623180307-unauthRole",
+            "StackName": "womenshealth-dev-20190623180307",
+            "StackId": "arn:aws:cloudformation:us-east-1:716852846847:stack/womenshealth-dev-20190623180307/0f31fe50-95b3-11e9-acfb-0a4a1f15abc2"
+        },
+        "categories": {
+            "auth": {
+                "womenshealthe92f005d": {}
+            }
+        }
+    }
+}
