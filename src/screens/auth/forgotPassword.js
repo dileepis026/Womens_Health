@@ -10,15 +10,18 @@ import {Navigation} from 'react-native-navigation';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { Container,Item, Input,Button} from 'native-base';
 import {images} from '../../utils';
+import Snackbar from 'react-native-snackbar';
+import {connect} from 'react-redux';
+import {forgotPassword} from '../../redux/actions/forgotPassword';
 
 
-export default class ForgotPassword extends Component {
+export  class ForgotPassword extends Component {
 
   static options(passProps) {
      return {
        topBar: {
          title: {
-           text: 'Create a new password',
+           text: 'Forgot Password',
            color: 'white'
          },
          background: {
@@ -30,22 +33,73 @@ export default class ForgotPassword extends Component {
 constructor(props) {
   super(props);
   this.state = {
-    Username:'',
-    newPassword: '',
-    confirmationCode: ''
+    email:''
     }
  }
 
- confirmNewPassword = (Navigation,componentId) => {
-
-  Navigation.push(componentId, {
-        component: {
-        name: 'Login',
-        passProps: {Navigation,componentId}
-
-            }
-        });
+componentDidUpdate(prevProps, prevState) {
+   if (this.props !== prevProps) {
+      if (this.props.success && !prevProps.success) {
+       const email = this.state.email;
+       Navigation.push(this.props.componentId, {
+       component: {
+       name: 'ResetPassword',
+       passProps: {email},
+       options: {
+      topBar: {
+        title: {
+          text: 'Reset Password'
+        },
+        backButton: {
+        color: 'white'
+           }
+         }
+       }
+     }
+   });
  }
+     if (this.props.failure && !prevProps.failure) {
+       Snackbar.show({
+         title: this.props.errorMessage,
+         duration: Snackbar.LENGTH_INDEFINITE,
+         backgroundColor:'#000000',
+         action: {
+           title: 'UNDO',
+            color: '#8a2be2',
+          },
+      });
+     }
+   }
+ }
+
+
+
+
+
+// forgot_Password users with Auth
+  forgotPassword = async () => {
+   const {email} = this.state;
+   const emptyCredentials = [email].filter(e => !e.length)
+    if (emptyCredentials.length) {
+      Snackbar.show({
+        title: "email is mandatory",
+        duration: Snackbar.LENGTH_INDEFINITE,
+        backgroundColor:'#000000',
+        action: {
+          title: 'UNDO',
+           color: '#8a2be2',
+         },
+     });
+        return;
+      }
+
+      try {
+        this.props.forgotPassword(email);
+
+      }catch(error) {
+
+      }
+  }
 
 // Get user input
  onChangeText(key, value) {
@@ -56,7 +110,6 @@ constructor(props) {
 
  render() {
    const logo = images.logo;
-   const componentId = this.props.componentId;
     return (
       <SafeAreaView style={styles.container}>
             <View style={styles.container}>
@@ -66,60 +119,31 @@ constructor(props) {
                        source={logo}
                        style={styles.image}/>
               </View>
+              <View style={{paddingHorizontal:25,marginTop:15}}>
+              <Text style={{fontSize: 16,color: '#fff'}}>To reset your password, please enter  {'\n'} your
+                    Register email address.
+                    An  {'\n'}verification code  will be sent to that email address.
+                    </Text>
+                    </View>
 
           <Container style={styles.infoContainer}>
             <View style={styles.container}>
             <Item style={styles.itemStyle}>
-          <Ionicons name="ios-person" style={styles.iconStyle} />
+          <Ionicons name="ios-mail"  style={styles.iconStyle} />
           <Input
           style={styles.input}
-                      placeholder='Username'
+                      placeholder='Email'
                       placeholderTextColor='#adb4bc'
                       selectionColor={'white'}
                       keyboardType={'email-address'}
                       returnKeyType='go'
                       autoCapitalize='none'
                       autoCorrect={false}
-                      onChangeText={value => this.onChangeText('Username', value)}
+                      onChangeText={value => this.onChangeText('email', value)}
                       />
         </Item>
-      <Button block style={{marginTop:25,marginHorizontal:10, backgroundColor:'#ff1493'}} onPress={() => this.sendCode(Navigation,componentId)}>
-      <Text style={styles.textStyle}>Send Code</Text>
-      </Button>
-      <Item style={styles.itemStyle}>
-        <Ionicons name="ios-lock" style={styles.iconStyle} />
-        <Input
-                      style={styles.input}
-                      placeholder='New password'
-                      selectionColor={'white'}
-                      placeholderTextColor='#adb4bc'
-                      returnKeyType='next'
-                      autoCapitalize='none'
-                      autoCorrect={false}
-                      secureTextEntry={true}
-                      onChangeText={value => this.onChangeText('newPassword', value)}
-                      onSubmitEditing={(event) => { this.refs.SecondInput._root.focus() }}
-        />
-      </Item>
-      {/* Code confirmation section  */}
-      <Item style={styles.itemStyle}>
-        <Ionicons name="md-apps" style={styles.iconStyle} />
-        <Input
-        style={styles.input}
-                      placeholder='Confirmation code'
-                      placeholderTextColor='#adb4bc'
-                      selectionColor={'white'}
-                      keyboardType={'numeric'}
-                      returnKeyType='done'
-                      autoCapitalize='none'
-                      autoCorrect={false}
-                      secureTextEntry={false}
-                      ref='SecondInput'
-        onChangeText={value => this.onChangeText('confirmationCode', value)}
-                      />
-      </Item>
-      <Button block style={{marginTop:20,marginHorizontal:10, backgroundColor:'#ff1493'}} onPress={() => this.confirmNewPassword(Navigation,componentId)}>
-      <Text style={styles.textStyle}>Confirm the new password</Text>
+      <Button block style={{marginTop:25,marginHorizontal:10, backgroundColor:'#ff1493'}} onPress={this.forgotPassword}>
+      <Text style={styles.textStyle}>Forgot Password</Text>
       </Button>
       </View>
         </Container>
@@ -154,7 +178,7 @@ const styles = StyleSheet.create({
     marginRight: 15
   },
   textStyle: {
-    fontSize: 20,
+    fontSize: 18,
     color: '#fff',
     fontWeight: 'bold'
   },
@@ -171,3 +195,16 @@ const styles = StyleSheet.create({
     flex: 0.4
   },
 })
+const mapStateToProps = state => ({
+  userForgotPasswordAuth: state.ForgotPassword.userConfirmSignUpAuth,
+  fetching: state.ForgotPassword.fetching,
+  success: state.ForgotPassword.success,
+  failure: state.ForgotPassword.failure,
+  errorMessage: state.ForgotPassword.message
+})
+
+const mapDispatchToProps = {
+  forgotPassword
+}
+
+export default connect(mapStateToProps,mapDispatchToProps)(ForgotPassword);

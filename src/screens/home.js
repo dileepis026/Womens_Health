@@ -35,7 +35,7 @@ export default class Home extends Component {
 constructor(props) {
   super(props);
   this.state = {
-   selected: false
+   selected: false,
   };
 }
 

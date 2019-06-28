@@ -5,7 +5,8 @@ import {
   Text,
   Image,
   SafeAreaView,
-  Animated
+  Animated,
+  Alert,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {Navigation} from 'react-native-navigation';
@@ -15,9 +16,12 @@ import {images} from '../../utils';
 import Snackbar from 'react-native-snackbar';
 import { goToAuth, goHome } from '../navigator';
 import { Auth } from 'aws-amplify';
+import Loading from '../../components/loading';
+import {connect} from 'react-redux';
+import {login,requestData} from '../../redux/actions/login';
 
 
-export default class Login extends Component {
+export  class Login extends Component {
 
   static options(passProps) {
     return {
@@ -38,6 +42,24 @@ export default class Login extends Component {
     }
 }
 
+componentDidUpdate(prevProps, prevState) {
+  if (this.props !== prevProps) {
+     if (this.props.success && !prevProps.success) {
+      goHome();
+    }
+    if (this.props.failure && !prevProps.failure) {
+      Snackbar.show({
+        title: this.props.errorMessage,
+        duration: Snackbar.LENGTH_INDEFINITE,
+        backgroundColor:'#000000',
+        action: {
+          title: 'UNDO',
+           color: '#8a2be2',
+         },
+     });
+    }
+  }
+}
 
 // Get user input
   onChangeText(key, value) {
@@ -46,40 +68,38 @@ export default class Login extends Component {
     })
   }
 
+// Sign_in users with Auth
+ signIn = async () => {
+ const { email, password } = this.state;
+ const emptyCredentials = [email, password].filter(e => !e.length)
+  if (emptyCredentials.length) {
+    Snackbar.show({
+      title: "All fields are required",
+      duration: Snackbar.LENGTH_INDEFINITE,
+      backgroundColor:'#000000',
+      action: {
+        title: 'UNDO',
+         color: '#8a2be2',
+       },
+   });
+      return;
+    }
 
+    const payload = {
+      email: email,
+      password: password
+    }
+    try {
+      //this.props.requestData();
+      this.props.login(payload);
 
+    }catch(error) {
 
+    }
+  }
 
-
-  // Sign in users with Auth
- async getStarted(Navigation,componentId) {
-
-  const { email, password } = this.state
-    await Auth.signIn(email,password)
-    .then((user) => {
-      console.log(user);
-      goHome();
-})
- .catch((err) => {
-   console.log(err)
-   Snackbar.show({
-title: err["message"],
-duration: Snackbar.LENGTH_INDEFINITE,
-backgroundColor:'#ff1493',
-action: {
- title: 'UNDO',
- color: 'black',
- onPress: () => { /* Do something. */ },
-},
-});
-   })
-
-}
-
-
-  createAccount = (Navigation,componentId) => {
-
-   Navigation.push(componentId, {
+createAccount = (Navigation,componentId) => {
+       Navigation.push(componentId, {
          component: {
          name: 'Registration',
          passProps: {Navigation,componentId},
@@ -98,15 +118,14 @@ action: {
 }
 
 forgotPassword = (Navigation,componentId) => {
-
- Navigation.push(componentId, {
+Navigation.push(componentId, {
        component: {
        name: 'ForgotPassword',
        passProps: {Navigation,componentId},
        options: {
       topBar: {
         title: {
-          text: 'Create a new password'
+          text: 'Forgot Password'
         },
         backButton: {
         color: 'white'
@@ -118,9 +137,15 @@ forgotPassword = (Navigation,componentId) => {
 }
 
    render() {
+
   const componentId = this.props.componentId;
   const logo = images.logo;
   let { fadeOut, fadeIn, isHidden } = this.state;
+  if (this.props.fetching) {
+      return (
+        <Loading />
+      );
+    }
 
   return (
       <SafeAreaView style={styles.container}>
@@ -165,8 +190,8 @@ forgotPassword = (Navigation,componentId) => {
                  onChangeText={value => this.onChangeText('password', value)}
                  />
               </Item>
-            <Button block  style={{marginTop:50,paddingHorizontal: 25, backgroundColor:'#ff1493'}} onPress={() => this.getStarted(Navigation,componentId)}>
-            <Text style={styles.textStyle}>GET STARTED</Text>
+            <Button block  style={{marginTop:50,paddingHorizontal: 25, backgroundColor:'#ff1493'}} onPress={this.signIn}>
+            <Text style={styles.textStyle}>Sign in</Text>
             </Button>
             <View style={{flexDirection: 'row'}}>
             <Button block transparent style={{marginTop:20,marginRight:10}} onPress={() => this.createAccount(Navigation,componentId)}>
@@ -215,7 +240,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold'
   },
   textStyle: {
-    fontSize: 20,
+    fontSize: 18,
     color: '#fff',
     fontWeight: 'bold'
   },
@@ -232,3 +257,18 @@ const styles = StyleSheet.create({
     flex: 0.5
   },
 })
+
+const mapStateToProps = state => ({
+  userAuth: state.Login.userAuth,
+  fetching: state.Login.fetching,
+  success:  state.Login.success,
+  failure:  state.Login.failure,
+  errorMessage: state.Login.message
+
+})
+
+const mapDispatchToProps = {
+  login,
+  requestData
+}
+export default connect(mapStateToProps,mapDispatchToProps)(Login)

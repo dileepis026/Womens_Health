@@ -15,6 +15,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import { goToAuth} from './navigator';
 import { Auth } from 'aws-amplify';
 import {Navigation} from 'react-native-navigation';
+import {connect} from 'react-redux';
 
 
  const styles = StyleSheet.flatten({
@@ -97,7 +98,7 @@ const sidebar_items = [
 
 
 
-export default class  Drawer extends Component {
+export class  Drawer extends Component {
 
   static get options() {
       return {
@@ -191,7 +192,7 @@ export default class  Drawer extends Component {
                                    onPress={() => {
                                      Navigation.push(this.props.componentId, {
         component: {
-        name: 'Dashboard',
+        name: 'Chatbot',
 
             }
         });
@@ -244,3 +245,9 @@ export default class  Drawer extends Component {
       );
     }
 }
+
+const mapStateToprops = state => ({
+userAuth: state.Login.userAuth
+});
+
+export default connect(mapStateToprops)(Drawer);

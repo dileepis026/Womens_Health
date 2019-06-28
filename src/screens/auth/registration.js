@@ -16,6 +16,8 @@ import DatePicker from 'react-native-datepicker';
 import { Container, Content, Item, Input, Button, View, Text} from 'native-base';
 import Snackbar from 'react-native-snackbar';
 import { Auth } from 'aws-amplify';
+import {connect} from 'react-redux';
+import {register} from '../../redux/actions/registration';
 
 
 // Default render of country flag
@@ -29,7 +31,7 @@ const defaultCode = data.filter(
 )[0].dial_code;
 
 
-export default class Registration extends Component {
+export class Registration extends Component {
 
   static options(passProps) {
      return {
@@ -61,8 +63,42 @@ constructor(props) {
     }
   }
 
+  componentDidUpdate(prevProps, prevState) {
+    if (this.props !== prevProps) {
+       if (this.props.success && !prevProps.success) {
+        const email = this.state.email;
+        Navigation.push(this.props.componentId, {
+        component: {
+        name: 'ConfirmSignUp',
+        passProps: {email},
+        options: {
+       topBar: {
+         title: {
+           text: 'Confirm Sign Up'
+         },
+         backButton: {
+         color: 'white'
+            }
+          }
+        }
+      }
+    });
+  }
+      if (this.props.failure && !prevProps.failure) {
+        Snackbar.show({
+          title: this.props.errorMessage,
+          duration: Snackbar.LENGTH_INDEFINITE,
+          backgroundColor:'#000000',
+          action: {
+            title: 'UNDO',
+             color: '#8a2be2',
+           },
+       });
+      }
+    }
+  }
 
- // Get user input
+// Get user input
   onChangeText(key, value) {
     this.setState({
       [key]: value
@@ -101,7 +137,7 @@ constructor(props) {
     }
   }
 // Sign up user with AWS Amplify Auth
-  async signUp(Navigation,componentId) {
+signUp = async () => {
 
  const {
   name,
@@ -112,54 +148,39 @@ constructor(props) {
   phoneNumber
 } = this.state;
 
-// rename variable to conform with Amplify Auth field phone attribute
-    const phone_number = phoneNumber
+const emptyCredentials = [name,email,password,birthdate,locale,phoneNumber].filter(e => !e.length)
+ if (emptyCredentials.length) {
+   Snackbar.show({
+     title: "All fields are required",
+     duration: Snackbar.LENGTH_INDEFINITE,
+     backgroundColor:'#000000',
+     action: {
+       title: 'UNDO',
+        color: '#8a2be2',
+      },
+  });
+     return;
+   }
+   const payload = {
+     name: name,
+     email: email,
+     password: password,
+     birthdate: birthdate,
+     locale: locale,
+     phoneNumber: phoneNumber
 
-  await Auth.signUp({
-    username: email,
-    password,
-    attributes: {name, phone_number, birthdate, locale }
-  })
-  .then((user) => {
-     console.log(user)
-     Navigation.push(componentId, {
-        component: {
-        name: 'ConfirmSignUp',
-        passProps: {Navigation,componentId},
-        options: {
-       topBar: {
-         title: {
-           text: 'Confirm Sign Up'
-         },
-         backButton: {
-         color: 'white'
-            }
-          }
-        }
-      }
-        });
-
-   })
-   .catch((err) => {
-     console.log(err)
-     Snackbar.show({
- title: err["message"],
- duration: Snackbar.LENGTH_INDEFINITE,
- backgroundColor:'#ff1493',
- action: {
-  title: 'UNDO',
-  color: 'black',
-  onPress: () => { /* Do something. */ },
- },
- });
-})
+   }
+   try {
+        this.props.register(payload);
+      }catch(error) {
+   }
 }
 
- render() {
+
+render() {
   const  flag = this.state.flag;
    const countryData = data;
    const window = Dimensions.get('window');
-   const componentId = this.props.componentId;
 
     return (
       <SafeAreaView style={styles.container}>
@@ -349,7 +370,7 @@ constructor(props) {
                     </Modal>
                   </Item>
                   {/* End of phone input */}
-     <Button block style={{marginTop:20,marginHorizontal:10, backgroundColor:'#ff1493'}} onPress={() => this.signUp(Navigation,componentId)}>
+     <Button block style={{marginTop:20,marginHorizontal:10, backgroundColor:'#ff1493'}} id='signUpBtn' onPress={this.signUp}>
           <Text style={styles.textStyle}>Sign Up</Text>
           </Button>
                </View>
@@ -404,7 +425,7 @@ const styles = StyleSheet.create({
   },
   textStyle: {
     padding: 5,
-    fontSize: 20,
+    fontSize: 18,
     color: '#fff',
     fontWeight: 'bold'
   },
@@ -422,3 +443,17 @@ const styles = StyleSheet.create({
     backgroundColor: '#b44666',
   }
 })
+const mapStateToProps = state => ({
+  userSignUpAuth: state.Registration.userSignUpAuth,
+  fetching: state.Registration.fetching,
+  success: state.Registration.success,
+  failure: state.Registration.failure,
+  errorMessage: state.Registration.message
+
+})
+
+const mapDispatchToProps = {
+  register
+}
+
+export default connect(mapStateToProps,mapDispatchToProps)(Registration)

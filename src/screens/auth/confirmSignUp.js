@@ -9,17 +9,19 @@ import {Navigation} from 'react-native-navigation';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { Container,Item, Input, Button, Icon} from 'native-base';
 import Snackbar from 'react-native-snackbar';
+import { goToAuth } from '../navigator';
 import { Auth } from 'aws-amplify';
+import {connect} from 'react-redux';
+import {confirmRegister} from '../../redux/actions/confirmSignUp';
 
 
-
-export default class ConfirmSignUp extends Component {
+export class ConfirmSignUp extends Component {
 
   static options(passProps) {
      return {
        topBar: {
          title: {
-           text: 'Confirm Sign Up',
+           text: 'Forgot Password',
            color: 'white'
          },
          background: {
@@ -32,8 +34,27 @@ export default class ConfirmSignUp extends Component {
 constructor(props) {
    super(props);
    this.state = {
-    confirmationCode: '',
+    authCode: '',
    }
+}
+
+componentDidUpdate(prevProps, prevState) {
+  if (this.props !== prevProps) {
+     if (this.props.success && !prevProps.success) {
+      goToAuth();
+    }
+    if (this.props.failure && !prevProps.failure) {
+      Snackbar.show({
+        title: this.props.errorMessage,
+        duration: Snackbar.LENGTH_INDEFINITE,
+        backgroundColor:'#000000',
+        action: {
+          title: 'UNDO',
+           color: '#8a2be2',
+         },
+     });
+    }
+  }
 }
 
 // Get user input
@@ -43,24 +64,44 @@ constructor(props) {
    })
  }
 
- async confirmationCode(Navigation,componentId) {
-
-   const email = "dileepis026@gmail.com";
-   const authCode = "823278";
-    await Auth.confirmSignUp(email, authCode)
-    .then(() => {
-      console.log('Confirm sign up successful');
-    })
-    .catch(err => {
-      console.log(err);
-    })
+ // resend verification code...
+ resendCode = async () => {
 
 
  }
 
- render() {
 
-   const componentId = this.props.componentId;
+ // confirmationCode for users  for email verification..
+  confirmationCode = async () => {
+    const {authCode} = this.state;
+    const {email} = this.props;
+    const emptyCredentials = [authCode].filter(e => !e.length)
+     if (emptyCredentials.length) {
+       Snackbar.show({
+         title: "Confirmation code are mandatory",
+         duration: Snackbar.LENGTH_INDEFINITE,
+         backgroundColor:'#000000',
+         action: {
+           title: 'UNDO',
+            color: '#8a2be2',
+          },
+      });
+         return;
+       }
+       const payload = {
+         email: email,
+         authCode: authCode
+       }
+
+       try {
+         this.props.confirmRegister(payload);
+
+       }catch(error) {
+
+       }
+    }
+
+ render() {
 
   return (
     <SafeAreaView style={styles.container}>
@@ -83,12 +124,12 @@ constructor(props) {
                     autoCapitalize='none'
                     autoCorrect={false}
                     secureTextEntry={false}
-             onChangeText={value => this.onChangeText('confirmationCode', value)}/>
+             onChangeText={value => this.onChangeText('authCode', value)}/>
         </Item>
-      <Button block style={{marginTop:25,backgroundColor:'#ff1493'}} onPress={() => this.confirmationCode(Navigation,componentId)}>
+      <Button block style={{marginTop:25,backgroundColor:'#ff1493'}} onPress={this.confirmationCode}>
       <Text style={styles.textStyle}> Confirm Sign Up</Text>
       </Button>
-      <Button block style={{marginTop:20, backgroundColor:'#ff1493'}} onPress={() => this.resendCode(Navigation,componentId)}>
+      <Button block style={{marginTop:20, backgroundColor:'#ff1493'}} onPress={this.resendCode}>
       <Text style={styles.textStyle}>Resend Code</Text>
       </Button>
       </View>
@@ -125,8 +166,22 @@ const styles = StyleSheet.create({
     marginRight: 15
   },
   textStyle: {
-    fontSize: 20,
+    fontSize: 18,
     color: '#fff',
     fontWeight: 'bold'
   },
 })
+
+const mapStateToProps = state => ({
+  userConfirmSignUpAuth: state.ConfirmSignUp.userConfirmSignUpAuth,
+  fetching: state.ConfirmSignUp.fetching,
+  success: state.ConfirmSignUp.success,
+  failure: state.ConfirmSignUp.failure,
+  errorMessage: state.ConfirmSignUp.message
+})
+
+const mapDispatchToProps = {
+  confirmRegister
+}
+
+export default connect(mapStateToProps,mapDispatchToProps)(ConfirmSignUp);

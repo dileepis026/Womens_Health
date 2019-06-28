@@ -10,6 +10,7 @@
     "aws-amplify": "^1.1.29",
     "aws-amplify-react-native": "^2.1.13",
     "native-base": "^2.12.1",
+    "prop-types": "^15.7.2",
     "react": "16.8.3",
     "react-native": "0.59.8",
     "react-native-datepicker": "^1.7.2",

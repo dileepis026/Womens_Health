@@ -1,6 +1,5 @@
 import React from 'react';
 import {bottomTabs as appTabs} from './homeTabs';
-import {icons} from '../../utils';
 
 export const sideMenu = {
       left: {
